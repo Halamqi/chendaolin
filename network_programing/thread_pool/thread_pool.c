@@ -1,13 +1,22 @@
 #include "thread_pool.h"
 void* thread_runtine(void* arg){
 	thread_pool_t* pool=(thread_pool_t*) arg;
+	struct timespec abstime;
 	printf("thread %lu is starting\n",pthread_self());
 	while(1){
+		int timeout=0;
 		pthread_mutex_lock(&pool->poolMutex);
 		while(pool->queueHead==NULL&&!pool->shutdown){
 			printf("%lu thread is waiting...\n",pthread_self());
 			pool->freeThread++;
-			pthread_cond_wait(&pool->queueNotEmpty,&pool->poolMutex);
+			clock_gettime(CLOCK_REALTIME,&abstime);
+			abstime.tv_sec+=10;
+			int status=pthread_cond_timedwait(&pool->queueNotEmpty,&pool->poolMutex,&abstime);
+			if(status==ETIMEDOUT){
+				printf("%lu thread is timeout\n",pthread_self());
+				timeout=1;
+				break;
+			}
 		}
 		
 		pool->freeThread--;
@@ -21,6 +30,14 @@ void* thread_runtine(void* arg){
 		}
 		if(pool->shutdown&&pool->queueHead==NULL){
 			printf("%lu thread is exiting\n",pthread_self());
+			pool->totalThread--;
+			if(pool->totalThread==0){
+				pthread_cond_signal(&pool->nothreadWorking);
+			}
+			pthread_mutex_unlock(&pool->poolMutex);
+			break;
+		}
+		if(timeout==1){
 			pool->totalThread--;
 			if(pool->totalThread==0){
 				pthread_cond_signal(&pool->nothreadWorking);

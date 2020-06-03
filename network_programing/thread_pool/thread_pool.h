@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 
 typedef struct task{
 	void* (*thread_cb) (void*);
