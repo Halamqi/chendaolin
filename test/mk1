@@ -1,0 +1,25 @@
+MUDUO_DIRECTORY ?= $(HOME)/build/release-install-cpp11
+#MUDUO_DIRECTORY ?= $(HOME)/build/install
+MUDUO_INCLUDE = $(MUDUO_DIRECTORY)/include
+MUDUO_LIBRARY = $(MUDUO_DIRECTORY)/lib
+SRC = $(wildcard *.cpp)
+
+#OBJ = $(patsubst %.c,%.o,$(SRC))
+
+CXXFLAGS = -g -O0 -Wall -Wextra -Werror \
+	   -Wconversion -Wno-unused-parameter \
+	   -Wold-style-cast -Woverloaded-virtual \
+	   -Wpointer-arith -Wshadow -Wwrite-strings \
+	   -march=native -rdynamic \
+	   -I$(MUDUO_INCLUDE)
+
+LDFLAGS = -L$(MUDUO_LIBRARY) -lmuduo_net -lmuduo_base -lpthread -lrt -std=c++11
+
+all:server
+clean:
+	rm -f server 
+server: $(SRC)
+	g++ $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+.PHONY: all clean
+
