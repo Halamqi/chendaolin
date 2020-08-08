@@ -4,8 +4,8 @@ class Shared_ptr{
 		Shared_ptr(T* rawPtr=nullptr);
 		Shared_ptr(const Shared_ptr& other);
 		Shared_ptr& operator=(const Shared_ptr& other);
-		Shared_ptr(Shared_ptr&& other);
-		Shared_ptr& operator=(Shared_ptr&& other);
+	//	Shared_ptr(Shared_ptr&& other);
+	//	Shared_ptr& operator=(Shared_ptr&& other);
 		~Shared_ptr();
 
 		int user_count() 
@@ -18,7 +18,7 @@ class Shared_ptr{
 		
 		T* get() {return raw_;}
 		
-		operator bool() {return raw_!=nullptr;}
+		operator bool() const {return raw_!=nullptr;}
 
 		T& operator*(){return *raw_;}
 		T* operator->(){return raw_;}
@@ -51,7 +51,7 @@ Shared_ptr<T>::Shared_ptr(const Shared_ptr<T>& other)
 template <typename T>
 Shared_ptr<T>& Shared_ptr<T>::operator=(const Shared_ptr<T>& other)
 {
-	if(*this==other) return *this;
+	if(this==&other) return *this;
 	if(other)
 	{
 		if(raw_)
